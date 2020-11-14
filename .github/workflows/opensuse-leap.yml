@@ -1,0 +1,67 @@
+name: opensuse-leap-dist
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/opensuse-leap.yml'
+      - '!opensuse/leap/**'
+  repository_dispatch:
+    types: opensuse-leap-build
+
+jobs:
+  build:
+    name: Building opensuse leap docker images
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        dist:
+          - {
+              name: opensuse-leap-15.1,
+              os: opensuse-leap,
+              symbol: "15.1",
+              platforms: "linux/amd64,linux/arm64/v8,linux/arm/v7"
+            }
+          - {
+              name: opensuse-leap-15.2,
+              os: opensuse-leap,
+              symbol: "15.2",
+              platforms: "linux/amd64,linux/arm64/v8,linux/arm/v7"
+            }
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Prepare
+        id: prepare
+        run: |
+          DIST_NAME=${{ matrix.dist.name }}
+          USER_NAME=flameshotorg
+          REPO_NAME=ci-building-images
+          IMAGE_NAME=opensuse/leap/${{ matrix.dist.symbol }}
+          TAGS="${USER_NAME}/${REPO_NAME}:${DIST_NAME}"
+          echo ::set-output name=build_args::VERSION=${DIST_NAME}
+          echo ::set-output name=image-name::${IMAGE_NAME}
+          echo ::set-output name=tags::${TAGS}
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Login to DockerHub
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+      - name: Build
+        uses: docker/build-push-action@v2
+        with:
+          context: ./${{ steps.prepare.outputs.image-name }}
+          file: ./${{ steps.prepare.outputs.image-name }}/Dockerfile
+          platforms: ${{ matrix.dist.platforms }}
+          push: ${{ github.event_name != 'pull_request' }}
+          build-args: ${{ steps.prepare.outputs.build_args }}
+          tags: ${{ steps.prepare.outputs.tags }}
+      - name: Clear
+        if: always()
+        run: |
+          rm -rf ${HOME}/.docker/config.json
