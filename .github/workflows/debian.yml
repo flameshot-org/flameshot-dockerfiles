@@ -1,0 +1,75 @@
+name: debian-dist
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - '.github/workflows/debian.yml'
+      - '!debian/**'
+  repository_dispatch:
+    types: debian-build
+
+jobs:
+  build:
+    name: Building debian docker images
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        dist:
+          - {
+              name: debian-buster,
+              os: debian,
+              # 10
+              symbol: buster,
+              platforms: "linux/amd64,linux/arm64/v8,linux/arm/v7"
+            }
+          - {
+              name: debian-bullseye,
+              os: debian,
+              # 11
+              symbol: bullseye,
+              platforms: "linux/amd64,linux/arm64/v8,linux/arm/v7"
+            }
+          # - {
+          #     name: debian-sid,
+          #     os: debian,
+          #     symbol: sid,
+          #     platforms: "linux/amd64,linux/arm64/v8,linux/arm/v7"
+          #   }
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Prepare
+        id: prepare
+        run: |
+          DIST_NAME=${{ matrix.dist.name }}
+          USER_NAME=flameshotorg
+          REPO_NAME=ci-building-images
+          IMAGE_NAME=${{ matrix.dist.os }}/${{ matrix.dist.symbol }}
+          TAGS="${USER_NAME}/${REPO_NAME}:${DIST_NAME}"
+          echo ::set-output name=build_args::VERSION=${DIST_NAME}
+          echo ::set-output name=image-name::${IMAGE_NAME}
+          echo ::set-output name=tags::${TAGS}
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Login to DockerHub
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASSWORD }}
+      - name: Build
+        uses: docker/build-push-action@v2
+        with:
+          context: ./${{ steps.prepare.outputs.image-name }}
+          file: ./${{ steps.prepare.outputs.image-name }}/Dockerfile
+          platforms: ${{ matrix.dist.platforms }}
+          push: ${{ github.event_name != 'pull_request' }}
+          build-args: ${{ steps.prepare.outputs.build_args }}
+          tags: ${{ steps.prepare.outputs.tags }}
+      - name: Clear
+        if: always()
+        run: |
+          rm -rf ${HOME}/.docker/config.json
