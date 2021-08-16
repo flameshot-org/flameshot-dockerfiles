@@ -28,6 +28,12 @@ jobs:
               symbol: "15.2",
               platforms: "linux/amd64,linux/arm64/v8,linux/arm/v7"
             }
+          - {
+              name: opensuse-leap-15.3,
+              os: opensuse-leap,
+              symbol: "15.3",
+              platforms: "linux/amd64,linux/arm64/v8,linux/arm/v7"
+            }
     steps:
       - name: Checkout
         uses: actions/checkout@v2
