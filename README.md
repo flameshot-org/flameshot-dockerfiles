@@ -18,7 +18,7 @@ There're two ways to trigger docker images building,
   curl -H "Accept: application/Accept: application/vnd.github.v3.full+json" \
   -H "Authorization: token your-personal-token" \
   --request POST \
-  --data '{"event_type": "fedora-build"}' \
+  --data '{\"event_type\": \"fedora-build\"}' \
   https://api.github.com/repos/flameshot-org/flameshot-dockerfiles/dispatches
   ```
 
@@ -28,8 +28,9 @@ There're two ways to trigger docker images building,
   curl -H "Accept: application/Accept: application/vnd.github.v3.full+json" \
   -H "Authorization: token your-personal-token" \
   --request POST \
-  --data '{"event_type": "fedora-build", "client_payload": { "version": "0.33.0"}}' \
+  --data '{\"event_type\": \"fedora-build\", \"client_payload\": { \"version\": \"0.33.0\"}}' \
   https://api.github.com/repos/flameshot-org/flameshot-dockerfiles/dispatches
   ```
 
-- Push changes on some Dockerfiles or workflow yaml files. For example, `debian/buster/Dockerfile` or `.github/workflows/debian.yml`
+- Push changes on some Dockerfiles or workflow yaml files. For example, `debian/bullseye/Dockerfile` or `.github/workflows/debian.yml`
+
