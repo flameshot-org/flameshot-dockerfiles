@@ -40,6 +40,12 @@ jobs:
               symbol: 34,
               platforms: "linux/amd64,linux/arm64/v8,linux/arm/v7"
             }
+          - {
+              name: fedora-35,
+              os: fedora,
+              symbol: 35,
+              platforms: "linux/amd64,linux/arm64/v8,linux/arm/v7"
+            }
           # - {
           #     name: fedora-rawhide,
           #     os: fedora,
