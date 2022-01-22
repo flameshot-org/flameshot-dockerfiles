@@ -1,0 +1,138 @@
+REQUIRE_ENV base ver
+
+# TODO why does centos:6 not have --platform=$TARGETPLATFORM
+if [[ "$base:$ver" = centos:6 ]]; then
+    FROM "$base:$ver"
+else
+    SHDOCKER quote off
+    FROM --platform='$TARGETPLATFORM' "$base:$ver"
+    SHDOCKER quote on
+fi
+
+MAINTAINER flameshot-org developers '<info@flameshot.org>'
+
+# Variable definitions
+
+[[ "$base:$ver" = centos:6 ]] && PYTHON='python2.6'
+[[ "$base:$ver" = centos:7 ]] && PYTHON='python2.7'
+
+if [ "$base:$ver" = "centos:7" ]; then
+    ARG DEVTOOLSET=devtoolset-8
+    DEVTOOLSET='${DEVTOOLSET}'
+else
+    DEVTOOLSET='devtoolset-6'
+fi
+
+# Fix missing locales
+# TODO didn't find it in centos:8, why?
+[ "$base" = "centos" ] && [ "$ver" != "8" ] &&
+    ENV LC_ALL="en_US.UTF-8" LANG="en_US.UTF-8"
+
+# TODO found this comment in other dockerfiles too
+# Update repositories and installed packages to avoid of issues got at:
+#   https://github.com/tarantool/tarantool-qa/issues/60
+[ "$base:$ver" = "centos:7" ] &&
+    RUN yum update -v -y
+if [ "$base:$ver" = "centos:8" ]; then
+    RUN dnf update -v -y
+    # Enable extra tools
+    RUN yum -y install wget yum-utils
+fi
+
+# Enable extra repositories
+[[ "$base:$ver" =~ centos:(6|7) ]] &&
+    RUN yum -y install \
+        wget \
+        curl \
+        pygpgme \
+        yum-utils
+
+[[ "$base:$ver" =~ centos:(6|8) ]] &&
+    RUN yum -y install epel-release
+[[ "$base:$ver" = centos:7 ]] &&
+    RUN yum -y install epel-release centos-release-scl centos-release-scl-rh
+if [[ "$base:$ver" = centos:8 ]]; then
+    RUN sed -i 's/\[PowerTools\]/[powertools]/g' '/etc/yum.repos.d/*.repo'
+    RUN yum config-manager --set-enabled powertools
+fi
+
+if [ "$base:$ver" = centos:6 ]; then
+    ADD CentOS-SCLo-scl.repo /etc/yum.repos.d/
+    ADD CentOS-SCLo-scl-rh.repo /etc/yum.repos.d/
+fi
+RUN curl -s https://packagecloud.io/install/repositories/packpack/backports/script.rpm.sh '|' bash
+[ "$base:$ver" = "centos:6" ] &&
+    RUN yum makecache '&&' yum clean all
+
+# Install base toolset
+RUN yum -y groupinstall "Development Tools"
+if [ "$base:$ver" = "centos:6" ]; then
+    RUN yum -y install \
+        "$DEVTOOLSET"-toolchain "$DEVTOOLSET"-binutils-devel \
+        cmake cmake28 cmake3 \
+        sudo \
+        vim-minimal
+elif [ "$base:$ver" = "centos:7" ]; then
+    RUN yum -y install \
+        "$DEVTOOLSET"-toolchain "$DEVTOOLSET"-binutils-devel \
+        cmake cmake28 cmake3 \
+        sudo
+elif [ "$base:$ver" = "centos:8" ]; then
+    RUN yum -y install cmake sudo
+fi
+
+# Enable sudo without tty
+RUN sed -i.bak -n -e "/^Defaults.*requiretty/ { s/^/# /;};/^%wheel.*ALL$/ { s/^/# / ;} ;/^#.*wheel.*NOPASSWD/ { s/^#[ ]*//;};p" /etc/sudoers
+
+if [[ "$base:$ver" =~ centos:(6|7) ]]; then
+    # Enable devtoolset and ccache system-wide
+    # See /opt/rh/"$DEVTOOLSET"/enable
+    ENV PATH=/usr/lib64/ccache:/opt/rh/"$DEVTOOLSET"/root/usr/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+    ENV LD_LIBRARY_PATH=/opt/rh/"$DEVTOOLSET"/root/usr/lib64:/opt/rh/"$DEVTOOLSET"/root/usr/lib
+    ENV PERL5LIB=/opt/rh/"$DEVTOOLSET"/root/usr/lib64/perl5/vendor_perl:/opt/rh/"$DEVTOOLSET"/root/usr/lib/perl5:/opt/rh/"$DEVTOOLSET"/root/usr/share/perl5/vendor_perl
+    ENV PYTHONPATH=/opt/rh/"$DEVTOOLSET"/root/usr/lib64/$PYTHON/site-packages:/opt/rh/"$DEVTOOLSET"/root/usr/lib/$PYTHON/site-packages
+    ENV XDG_CONFIG_DIRS=/opt/rh/"$DEVTOOLSET"/root/etc/xdg:/etc/xdg
+    ENV XDG_DATA_DIRS=/opt/rh/"$DEVTOOLSET"/root/usr/share:/usr/local/share:/usr/share
+fi
+
+[[ "$base:$ver" =~ centos:(6|7) ]] &&
+    # sudo wrapper from devtoolset is buggy, remove it
+    RUN rm -f /opt/rh/"$DEVTOOLSET"/root/usr/bin/sudo
+
+if [[ "$base:$ver" = centos:7 ]]; then
+    # A workaround for [Errno 14] HTTP Error 404 - Not Found
+    # https://bugs.centos.org/view.php?id=12793
+    RUN sed -e '/\[centos-sclo-sclo-source\]/,+6d' -i /etc/yum.repos.d/CentOS-SCLo-scl.repo
+    RUN sed -e '/\[centos-sclo-rh-source\]/,+6d' -i /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo
+
+    # extras-source is not present for CentOS 7.8, while
+    # http://vault.centos.org/centos/7 now points to 7.8.2003.
+    #
+    # yum-builddep enables the repository and fetching of
+    # repomd.xml fails with 404 error.
+    #
+    # Don't know whether it is temporary effect or not, but
+    # it worth to remove the repository until it will be
+    # available on CentOS mirrors.
+    #
+    # How to check:
+    #
+    # $ curl -fSs 'http://vault.centos.org/centos/7/extras/Source/repodata/repomd.xml'
+    # curl: (22) The requested URL returned error: 404 Not Found
+    #
+    # The output above means that the problem is there.
+    RUN sed -e '/\[extras-source\]/,+6d' -i /etc/yum.repos.d/CentOS-Sources.repo
+    # The same as above, but for the updates-source repository.
+    RUN sed -e '/\[updates-source\]/,+6d' -i /etc/yum.repos.d/CentOS-Sources.repo
+    # The same as above, but for the base-source repository.
+    RUN sed -e '/\[base-source\]/,+6d' -i /etc/yum.repos.d/CentOS-Sources.repo
+fi
+
+# Cleanup YUM metadata and decrease image size
+if [ "$base:$ver" = "centos:7" ]; then
+    RUN yum clean all
+elif [ "$base:$ver" = "centos:8" ]; then
+    RUN dnf clean all
+fi
+
+# vim: filetype=dockerfile
