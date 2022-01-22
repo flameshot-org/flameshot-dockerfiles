@@ -1,0 +1,13 @@
+REQUIRE_ENV base ver
+
+SHDOCKER quote off
+FROM --platform='$TARGETPLATFORM' "$base:$ver"
+SHDOCKER quote on
+
+MAINTAINER flameshot-org developers '<info@flameshot.org>'
+
+RUN set -x \
+    '&&' apk add --no-cache su-exec make git tar xz alpine-sdk sudo \
+    '&&' sed -i.bak -n -e '/^Defaults.*requiretty/ { s/^/# /;};/^%wheel.*ALL$/ { s/^/# / ;} ;/^#.*wheel.*NOPASSWD/ { s/^#[ ]*//;};p' /etc/sudoers
+
+# vim: filetype=dockerfile
