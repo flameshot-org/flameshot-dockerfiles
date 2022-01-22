@@ -2,14 +2,10 @@ FROM centos:6
 MAINTAINER flameshot-org developers <info@flameshot.org>
 
 # Fix missing locales
-ENV LC_ALL="en_US.UTF-8" LANG="en_US.UTF-8"
+ENV LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
 
 # Enable extra repositories
-RUN yum -y install \
-    wget \
-    curl \
-    pygpgme \
-    yum-utils
+RUN yum -y install wget curl pygpgme yum-utils
 RUN yum -y install epel-release
 ADD CentOS-SCLo-scl.repo /etc/yum.repos.d/
 ADD CentOS-SCLo-scl-rh.repo /etc/yum.repos.d/
@@ -17,15 +13,11 @@ RUN curl -s https://packagecloud.io/install/repositories/packpack/backports/scri
 RUN yum makecache && yum clean all
 
 # Install base toolset
-RUN yum -y groupinstall 'Development Tools'
-RUN yum -y install \
-    devtoolset-6-toolchain devtoolset-6-binutils-devel \
-    cmake cmake28 cmake3 \
-    sudo \
-    vim-minimal
+RUN yum -y groupinstall "Development Tools"
+RUN yum -y install devtoolset-6-toolchain devtoolset-6-binutils-devel cmake cmake28 cmake3 sudo vim-minimal
 
 # Enable sudo without tty
-RUN sed -i.bak -n -e '/^Defaults.*requiretty/ { s/^/# /;};/^%wheel.*ALL$/ { s/^/# / ;} ;/^#.*wheel.*NOPASSWD/ { s/^#[ ]*//;};p' /etc/sudoers
+RUN sed -i.bak -n -e "/^Defaults.*requiretty/ { s/^/# /;};/^%wheel.*ALL$/ { s/^/# / ;} ;/^#.*wheel.*NOPASSWD/ { s/^#[ ]*//;};p" /etc/sudoers
 
 # Enable devtoolset and ccache system-wide
 # See /opt/rh/devtoolset-6/enable

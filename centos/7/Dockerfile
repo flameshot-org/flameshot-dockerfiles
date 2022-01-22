@@ -4,30 +4,23 @@ MAINTAINER flameshot-org developers <info@flameshot.org>
 ARG DEVTOOLSET=devtoolset-8
 
 # Fix missing locales
-ENV LC_ALL="en_US.UTF-8" LANG="en_US.UTF-8"
+ENV LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8
 
 # Update repositories and installed packages to avoid of issues got at:
 #   https://github.com/tarantool/tarantool-qa/issues/60
 RUN yum update -v -y
 
 # Enable extra repositories
-RUN yum -y install \
-    wget \
-    curl \
-    pygpgme \
-    yum-utils
+RUN yum -y install wget curl pygpgme yum-utils
 RUN yum -y install epel-release centos-release-scl centos-release-scl-rh
 RUN curl -s https://packagecloud.io/install/repositories/packpack/backports/script.rpm.sh | bash
 
 # Install base toolset
-RUN yum -y groupinstall 'Development Tools'
-RUN yum -y install \
-    ${DEVTOOLSET}-toolchain ${DEVTOOLSET}-binutils-devel \
-    cmake cmake28 cmake3 \
-    sudo
+RUN yum -y groupinstall "Development Tools"
+RUN yum -y install ${DEVTOOLSET}-toolchain ${DEVTOOLSET}-binutils-devel cmake cmake28 cmake3 sudo
 
 # Enable sudo without tty
-RUN sed -i.bak -n -e '/^Defaults.*requiretty/ { s/^/# /;};/^%wheel.*ALL$/ { s/^/# / ;} ;/^#.*wheel.*NOPASSWD/ { s/^#[ ]*//;};p' /etc/sudoers
+RUN sed -i.bak -n -e "/^Defaults.*requiretty/ { s/^/# /;};/^%wheel.*ALL$/ { s/^/# / ;} ;/^#.*wheel.*NOPASSWD/ { s/^#[ ]*//;};p" /etc/sudoers
 
 # Enable devtoolset and ccache system-wide
 # See /opt/rh/${DEVTOOLSET}/enable
@@ -43,8 +36,8 @@ RUN rm -f /opt/rh/${DEVTOOLSET}/root/usr/bin/sudo
 
 # A workaround for [Errno 14] HTTP Error 404 - Not Found
 # https://bugs.centos.org/view.php?id=12793
-RUN sed -e '/\[centos-sclo-sclo-source\]/,+6d' -i /etc/yum.repos.d/CentOS-SCLo-scl.repo
-RUN sed -e '/\[centos-sclo-rh-source\]/,+6d' -i /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo
+RUN sed -e "/\\[centos-sclo-sclo-source\\]/,+6d" -i /etc/yum.repos.d/CentOS-SCLo-scl.repo
+RUN sed -e "/\\[centos-sclo-rh-source\\]/,+6d" -i /etc/yum.repos.d/CentOS-SCLo-scl-rh.repo
 
 # extras-source is not present for CentOS 7.8, while
 # http://vault.centos.org/centos/7 now points to 7.8.2003.
@@ -62,13 +55,13 @@ RUN sed -e '/\[centos-sclo-rh-source\]/,+6d' -i /etc/yum.repos.d/CentOS-SCLo-scl
 # curl: (22) The requested URL returned error: 404 Not Found
 #
 # The output above means that the problem is there.
-RUN sed -e '/\[extras-source\]/,+6d' -i /etc/yum.repos.d/CentOS-Sources.repo
+RUN sed -e "/\\[extras-source\\]/,+6d" -i /etc/yum.repos.d/CentOS-Sources.repo
 
 # The same as above, but for the updates-source repository.
-RUN sed -e '/\[updates-source\]/,+6d' -i /etc/yum.repos.d/CentOS-Sources.repo
+RUN sed -e "/\\[updates-source\\]/,+6d" -i /etc/yum.repos.d/CentOS-Sources.repo
 
 # The same as above, but for the base-source repository.
-RUN sed -e '/\[base-source\]/,+6d' -i /etc/yum.repos.d/CentOS-Sources.repo
+RUN sed -e "/\\[base-source\\]/,+6d" -i /etc/yum.repos.d/CentOS-Sources.repo
 
 # Cleanup YUM metadata and decrease image size
 RUN yum clean all
