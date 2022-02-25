@@ -1,3 +1,5 @@
+# Utility functions
+
 REQUIRE_ENV base ver
 
 SHDOCKER quote off
@@ -7,7 +9,7 @@ SHDOCKER quote on
 MAINTAINER flameshot-org developers '<info@flameshot.org>'
 
 # Fix missing locales
-ENV LC_ALL=C.UTF-8 LANG=C.UTF-8
+ENV LC_ALL="C.UTF-8" LANG="C.UTF-8"
 
 # Skip interactive post-install scripts
 ENV DEBIAN_FRONTEND=noninteractive
@@ -15,32 +17,25 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Don't install recommends
 RUN echo 'apt::install-recommends "false";' '>' /etc/apt/apt.conf.d/00recommends
 
+deps=(apt-transport-https curl wget gnupg ca-certificates)
+ubuntu_deps=($([ "$base" = "ubuntu" ] && echo 'software-properties-common'))
+
 # Enable extra repositories
+# TODO Does this have to be conditional?
 force_yes="$([ "$ver" != "bullseye" ] && echo '--force-yes')"
 
-RUN apt-get update '&&' apt-get install -y $force_yes \
-    apt-transport-https \
-    curl \
-    wget \
-    gnupg \
-    ca-certificates
+RUN apt-get update '&&' apt-get install -y $force_yes "${deps[@]}" "${ubuntu_deps[@]}"
+
+base_toolset=(
+    sudo git build-essential cmake gdb ccache devscripts debhelper \
+    cdbs fakeroot lintian equivs rpm alien
+)
+base_toolset_debian=($([ "$ver" != "bullseye" ] && echo 'dh-systemd'))
 
 # Install base toolset
 RUN apt-get update '&&' apt-get install -y $force_yes \
-    sudo \
-    git \
-    build-essential \
-    cmake \
-    gdb \
-    ccache \
-    devscripts \
-    debhelper \
-    cdbs \
-    fakeroot \
-    lintian \
-    equivs \
-    rpm \
-    alien $([ "$ver" != "bullseye" ] && echo 'dh-systemd')
+    "${base_toolset[@]}" \
+    "${base_toolset_debian[@]}"
 
 # Enable sudo without password
 RUN echo '%adm ALL=(ALL) NOPASSWD:ALL' '>>' /etc/sudoers
