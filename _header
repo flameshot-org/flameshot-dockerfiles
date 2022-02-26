@@ -1,0 +1,7 @@
+REQUIRE_ENV base ver
+
+SHDOCKER quote off
+FROM --platform='$TARGETPLATFORM' "$base:$ver"
+SHDOCKER quote on
+
+MAINTAINER flameshot-org developers '<info@flameshot.org>'
