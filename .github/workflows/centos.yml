@@ -5,6 +5,7 @@ on:
     paths:
       - '.github/workflows/centos.yml'
       - '!centos/**'
+  workflow_dispatch:
   repository_dispatch:
     types: centos-build
 

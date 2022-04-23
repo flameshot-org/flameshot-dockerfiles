@@ -5,6 +5,7 @@ on:
     paths:
       - '.github/workflows/opensuse-leap.yml'
       - '!opensuse/leap/**'
+  workflow_dispatch:
   repository_dispatch:
     types: opensuse-leap-build
 
