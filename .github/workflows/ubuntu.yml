@@ -5,6 +5,7 @@ on:
     paths:
       - '.github/workflows/ubuntu.yml'
       - '!ubuntu/**'
+  workflow_dispatch:
   repository_dispatch:
     types: ubuntu-build
 
@@ -28,6 +29,13 @@ jobs:
               os: ubuntu,
               # 20.04
               symbol: focal,
+              platforms: "linux/amd64,linux/arm64/v8,linux/arm/v7"
+            }
+          - {
+              name: ubuntu-jammy,
+              os: ubuntu,
+              # 22.04
+              symbol: jammy,
               platforms: "linux/amd64,linux/arm64/v8,linux/arm/v7"
             }
     steps:
