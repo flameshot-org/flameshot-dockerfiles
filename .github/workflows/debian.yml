@@ -5,6 +5,7 @@ on:
     paths:
       - '.github/workflows/debian.yml'
       - '!debian/**'
+  workflow_dispatch:
   repository_dispatch:
     types: debian-build
 
