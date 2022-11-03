@@ -1,5 +1,5 @@
 # Docker images for flameshot CI building. :whale:
-![image](https://github.com/flameshot-org/flameshot-org.github.io/raw/master/docs/media/flameshot.svg) 
+![image](https://github.com/flameshot-org/flameshot-org.github.io/raw/master/static/flameshot-icon.svg) 
 > Powerful yet simple to use screenshot software.
 
 Docker bub repository: https://hub.docker.com/r/flameshotorg/ci-building-images
