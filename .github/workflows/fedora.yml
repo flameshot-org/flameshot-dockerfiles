@@ -18,28 +18,28 @@ jobs:
       matrix:
         dist:
           - {
-              name: fedora-34,
-              os: fedora,
-              symbol: 34,
-              platforms: "linux/amd64,linux/arm64/v8,linux/arm/v7"
-            }
-          - {
               name: fedora-35,
               os: fedora,
               symbol: 35,
-              platforms: "linux/amd64,linux/arm64/v8,linux/arm/v7"
+              platforms: "linux/amd64,linux/arm64"
             }
           - {
               name: fedora-36,
               os: fedora,
               symbol: 36,
-              platforms: "linux/amd64,linux/arm64/v8,linux/arm/v7"
+              platforms: "linux/amd64,linux/arm64,linux/arm/v7"
+            }
+          - {
+              name: fedora-37,
+              os: fedora,
+              symbol: 37,
+              platforms: "linux/amd64,linux/arm64"
             }
           # - {
           #     name: fedora-rawhide,
           #     os: fedora,
           #     symbol: rawhide,
-          #     platforms: "linux/amd64,linux/arm64/v8,linux/arm/v7"
+          #     platforms: "linux/amd64,linux/arm64"
           #   }
     steps:
       - name: Checkout
