@@ -48,10 +48,11 @@ jobs:
         id: prepare
         run: |
           DIST_NAME=${{ matrix.dist.name }}
-          USER_NAME=flameshotorg
-          REPO_NAME=ci-building-images
+          USER_NAME=flameshot-org
+          REPO_NAME=ci-building
           IMAGE_NAME=${{ matrix.dist.os }}/${{ matrix.dist.symbol }}
-          TAGS="${USER_NAME}/${REPO_NAME}:${DIST_NAME}"
+          REGISTRY_NAME=quay.io
+          TAGS="${REGISTRY_NAME}/${USER_NAME}/${REPO_NAME}:${DIST_NAME}"
           echo "build_args=VERSION=${DIST_NAME}" >> $GITHUB_OUTPUT
           echo "image-name=${IMAGE_NAME}" >> $GITHUB_OUTPUT
           echo "tags=${TAGS}" >> $GITHUB_OUTPUT
@@ -63,8 +64,9 @@ jobs:
         if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          registry: quay.io
+          username: ${{ secrets.QUAY_USERNAME }}
+          password: ${{ secrets.QUAY_TOKEN }}
       - name: Build
         uses: docker/build-push-action@v6
         with:
