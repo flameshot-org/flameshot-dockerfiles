@@ -18,7 +18,7 @@ RUN zypper install -y \
     tar \
     wget \
     xz \
-    yum-utils
+    dnf-utils
 
 # Enable sudo without password
 RUN echo '%users ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
