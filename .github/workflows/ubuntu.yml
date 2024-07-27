@@ -38,6 +38,13 @@ jobs:
               symbol: jammy,
               platforms: "linux/amd64,linux/arm64/v8,linux/arm/v7"
             }
+          - {
+              name: ubuntu-noble,
+              os: ubuntu,
+              # 24.04
+              symbol: noble,
+              platforms: "linux/amd64,linux/arm64/v8,linux/arm/v7"
+            }
     steps:
       - name: Checkout
         uses: actions/checkout@v3
