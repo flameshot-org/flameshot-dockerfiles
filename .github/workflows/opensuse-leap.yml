@@ -18,26 +18,20 @@ jobs:
       matrix:
         dist:
           - {
-              name: opensuse-leap-15.1,
+              name: opensuse-leap-15.5,
               os: opensuse-leap,
-              symbol: "15.1",
+              symbol: "15.5",
               platforms: "linux/amd64,linux/arm64/v8,linux/arm/v7"
             }
           - {
-              name: opensuse-leap-15.2,
+              name: opensuse-leap-15.6,
               os: opensuse-leap,
-              symbol: "15.2",
-              platforms: "linux/amd64,linux/arm64/v8,linux/arm/v7"
-            }
-          - {
-              name: opensuse-leap-15.3,
-              os: opensuse-leap,
-              symbol: "15.3",
+              symbol: "15.6",
               platforms: "linux/amd64,linux/arm64/v8,linux/arm/v7"
             }
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Prepare
         id: prepare
         run: |
@@ -50,17 +44,17 @@ jobs:
           echo "image-name=${IMAGE_NAME}" >> $GITHUB_OUTPUT
           echo "tags=${TAGS}" >> $GITHUB_OUTPUT
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
       - name: Login to DockerHub
         if: github.event_name != 'pull_request'
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v6
         with:
           context: ./${{ steps.prepare.outputs.image-name }}
           file: ./${{ steps.prepare.outputs.image-name }}/Dockerfile
@@ -68,6 +62,9 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           build-args: ${{ steps.prepare.outputs.build_args }}
           tags: ${{ steps.prepare.outputs.tags }}
+        env:
+          DOCKER_BUILD_SUMMARY: false
+          DOCKER_BUILD_RECORD_UPLOAD: false
       - name: Clear
         if: always()
         run: |
