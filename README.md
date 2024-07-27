@@ -1,12 +1,14 @@
-# Docker images for flameshot CI building. :whale:
+# Container images for flameshot CI building. :whale:
 ![image](https://github.com/flameshot-org/flameshot-org.github.io/raw/master/static/flameshot-icon.svg) 
 > Powerful yet simple to use screenshot software.
 
-Docker bub repository: https://hub.docker.com/r/flameshotorg/ci-building-images
+Quay repository: https://quay.io/repository/flameshot-org/ci-building
+
+Docker bub repository: https://hub.docker.com/r/flameshotorg/ci-building-images (Deprecated)
 
 The action is triggered by [workflows push paths event](https://help.github.com/en/actions/reference/workflow-syntax-for-github-actions#onpushpull_requestpaths) or [the repo's dispatch event](https://developer.github.com/v3/repos/#create-a-repository-dispatch-event).
 
-There're two ways to trigger docker images building,
+There're two ways to trigger container images building,
 
 - Get your own [personal access token](https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line).
 
