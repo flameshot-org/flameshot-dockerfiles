@@ -10,17 +10,14 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Don't install recommends
 RUN echo 'apt::install-recommends "false";' > /etc/apt/apt.conf.d/00recommends
 
-# Enable extra repositories
+# Enable extra repositories and base toolset
 RUN apt-get update && apt-get install -y --force-yes \
     apt-transport-https \
     curl \
     wget \
     gnupg \
     ca-certificates \
-    software-properties-common
-
-# Install base toolset
-RUN apt-get update && apt-get install -y --force-yes \
+    software-properties-common \
     sudo \
     git \
     build-essential \
@@ -34,7 +31,9 @@ RUN apt-get update && apt-get install -y --force-yes \
     lintian \
     equivs \
     rpm \
-    alien
+    alien \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Enable sudo without password
 RUN echo '%adm ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
