@@ -18,15 +18,15 @@ jobs:
       matrix:
         dist:
           - {
-              name: fedora-39,
-              os: fedora,
-              symbol: 39,
-              platforms: "linux/amd64,linux/arm64"
-            }
-          - {
               name: fedora-40,
               os: fedora,
               symbol: 40,
+              platforms: "linux/amd64,linux/arm64"
+            }
+          - {
+              name: fedora-41,
+              os: fedora,
+              symbol: 41,
               platforms: "linux/amd64,linux/arm64"
             }
           # - {
