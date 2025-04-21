@@ -29,6 +29,12 @@ jobs:
               symbol: 41,
               platforms: "linux/amd64,linux/arm64"
             }
+          - {
+              name: fedora-42,
+              os: fedora,
+              symbol: 42,
+              platforms: "linux/amd64,linux/arm64"
+            }
           # - {
           #     name: fedora-rawhide,
           #     os: fedora,
