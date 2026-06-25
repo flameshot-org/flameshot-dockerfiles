@@ -18,13 +18,6 @@ jobs:
       matrix:
         dist:
           - {
-              name: debian-buster,
-              os: debian,
-              # 10
-              symbol: buster,
-              platforms: "linux/amd64,linux/arm64/v8,linux/arm/v7"
-            }
-          - {
               name: debian-bullseye,
               os: debian,
               # 11
@@ -38,6 +31,13 @@ jobs:
               symbol: bookworm,
               platforms: "linux/amd64,linux/arm64/v8,linux/arm/v7"
             }
+          - {
+              name: debian-trixie,
+              os: debian,
+              # 13
+              symbol: trixie,
+              platforms: "linux/amd64,linux/arm64/v8,linux/arm/v7"
+            }
           # - {
           #     name: debian-sid,
           #     os: debian,
@@ -46,7 +46,7 @@ jobs:
           #   }
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Prepare
         id: prepare
         run: |
@@ -60,18 +60,18 @@ jobs:
           echo "image-name=${IMAGE_NAME}" >> $GITHUB_OUTPUT
           echo "tags=${TAGS}" >> $GITHUB_OUTPUT
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@v4
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
       - name: Login to DockerHub
         if: github.event_name != 'pull_request'
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: quay.io
           username: ${{ secrets.QUAY_USERNAME }}
           password: ${{ secrets.QUAY_TOKEN }}
       - name: Build
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: ./${{ steps.prepare.outputs.image-name }}
           file: ./${{ steps.prepare.outputs.image-name }}/Dockerfile

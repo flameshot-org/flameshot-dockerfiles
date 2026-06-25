@@ -1,5 +1,5 @@
-FROM --platform=$TARGETPLATFORM debian:buster
-MAINTAINER flameshot-org developers <info@flameshot.org>
+FROM --platform=$TARGETPLATFORM debian:trixie
+LABEL org.opencontainers.image.authors="flameshot-org developers <info@flameshot.org>"
 
 # Fix missing locales
 ENV LC_ALL="C.UTF-8" LANG="C.UTF-8"
@@ -10,7 +10,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Don't install recommends
 RUN echo 'apt::install-recommends "false";' > /etc/apt/apt.conf.d/00recommends
 
-RUN apt-get update && apt-get install -y --force-yes \
+RUN apt-get update && apt-get install -y \
     apt-transport-https \
     curl \
     wget \
@@ -18,7 +18,7 @@ RUN apt-get update && apt-get install -y --force-yes \
     ca-certificates
 
 # Install base toolset
-RUN apt-get update && apt-get install -y --force-yes \
+RUN apt-get update && apt-get install -y \
     sudo \
     git \
     build-essential \
@@ -32,8 +32,7 @@ RUN apt-get update && apt-get install -y --force-yes \
     lintian \
     equivs \
     rpm \
-    alien \
-    dh-systemd
+    alien
 
 # Enable sudo without password
 RUN echo '%adm ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
