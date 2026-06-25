@@ -1,5 +1,5 @@
 FROM --platform=$TARGETPLATFORM fedora:rawhide
-MAINTAINER flameshot-org developers <info@flameshot.org>
+LABEL org.opencontainers.image.authors="flameshot-org developers <info@flameshot.org>"
 
 # Fix missing locales
 ENV LC_ALL="C.UTF-8" LANG="C.UTF-8"
