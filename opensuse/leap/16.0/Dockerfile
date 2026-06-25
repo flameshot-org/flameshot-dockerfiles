@@ -1,4 +1,4 @@
-FROM --platform=$TARGETPLATFORM opensuse/tumbleweed:latest
+FROM --platform=$TARGETPLATFORM opensuse/leap:16.0
 LABEL org.opencontainers.image.authors="flameshot-org developers <info@flameshot.org>"
 
 # Install base toolset
@@ -18,7 +18,7 @@ RUN zypper install -y \
     tar \
     wget \
     xz \
-    yum-utils
+    dnf-utils
 
 # Enable sudo without password
 RUN echo '%users ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
