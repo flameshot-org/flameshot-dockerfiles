@@ -23,6 +23,12 @@ jobs:
               symbol: "16.0",
               platforms: "linux/amd64,linux/arm64/v8"
             }
+          - {
+              name: opensuse-leap-16.1,
+              os: opensuse-leap,
+              symbol: "16.1",
+              platforms: "linux/amd64,linux/arm64/v8"
+            }
     steps:
       - name: Checkout
         uses: actions/checkout@v7
